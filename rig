@@ -1,0 +1,485 @@
+repeat task.wait() until game:IsLoaded()
+
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
+if LocalPlayer.PlayerGui.UI.MainUI:FindFirstChild("CashMenu") then
+    LocalPlayer.PlayerGui.UI.MainUI.CashMenu:Destroy()
+end
+
+local Tycoons = game:GetService("Workspace").PlayerTycoons
+
+function GetPlayersTycoon()
+    for i,v in pairs(Tycoons:GetChildren()) do
+        if SelectedTycoon == nil then
+            if v.TycoonVals.Owner.Value == LocalPlayer then
+                return v
+            end
+        end
+    end
+end
+
+local SelectedTycoon = GetPlayersTycoon()
+
+if SelectedTycoon == nil then
+    repeat
+        SelectedTycoon = GetPlayersTycoon()
+        task.wait(1)
+        print(1)
+    until SelectedTycoon ~= nil
+end
+
+local CollectButton
+
+if SelectedTycoon then
+    CollectButton = SelectedTycoon.Essentials.Giver:WaitForChild("CollectButton")
+end
+
+function CollectMoney()
+    if SelectedTycoon.TycoonVals.CashCollect.Value > 0 then
+        if Character:FindFirstChild("HumanoidRootPart") then
+            Character.HumanoidRootPart.CFrame = CFrame.new(CollectButton.Position) * CFrame.new(0, math.random(1,2), 0)
+            firetouchinterest(Character.HumanoidRootPart, CollectButton, 1)
+            task.wait()
+            firetouchinterest(Character.HumanoidRootPart, CollectButton, 0)
+        end
+    end
+end
+
+function getButtonPrice(Button)
+    local Billboard = Button:FindFirstChild("BillboardGui")
+    
+    if Billboard and Billboard:FindFirstChild("Price") then
+        local subbed = string.sub(Billboard.Price.Text, 3)
+
+        return tonumber(string.sub(subbed, 0, string.len(subbed)-1)), Button
+    end
+end
+
+function GetCheapestWorkerButton()
+    local CheapestButton, CheapestButtonPrice
+    
+    for i,v in pairs(SelectedTycoon.Buttons:GetChildren()) do
+        if v:FindFirstChild("Button") and (v.Button.BrickColor == BrickColor.new(0, 255, 0) or v.Button.BrickColor == BrickColor.new(255, 0 ,0)) then
+            local Billboard = v.Button:FindFirstChildOfClass("BillboardGui")
+            
+            if Billboard then
+                local Price = v.Button:FindFirstChildOfClass("BillboardGui"):FindFirstChild("Price")    
+                local Text = v.Button:FindFirstChildOfClass("BillboardGui"):FindFirstChild("Title")
+                    
+                if Text and Price then
+                    if Text.Text == "Worker" then
+                        if CheapestButtonPrice == nil then
+                            CheapestButtonPrice, CheapestButton = getButtonPrice(v.Button)
+                        elseif CheapestButtonPrice > getButtonPrice(v.Button) then
+                            CheapestButtonPrice, CheapestButton = getButtonPrice(v.Button)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    return CheapestButton, CheapestButtonPrice
+end
+
+function GetCheapestButton()
+    local CheapestButton, CheapestButtonPrice
+    
+    for i,v in pairs(SelectedTycoon.Buttons:GetChildren()) do
+        if v:FindFirstChild("Button") and v.Button.BrickColor == BrickColor.new(0, 255, 0) or v.Button.BrickColor == BrickColor.new(255, 0 ,0) then
+            local Billboard = v.Button:FindFirstChildOfClass("BillboardGui")
+            
+            if Billboard and v.Button:FindFirstChildOfClass("BillboardGui"):FindFirstChild("Price") then
+                if CheapestButtonPrice == nil then
+                    CheapestButtonPrice, CheapestButton = getButtonPrice(v.Button)
+                elseif CheapestButtonPrice > getButtonPrice(v.Button) then
+                    CheapestButtonPrice, CheapestButton = getButtonPrice(v.Button)
+                end
+            end
+        end 
+    end
+    
+    return CheapestButton, CheapestButtonPrice
+end
+
+function PressButton()
+    local v = GetCheapestWorkerButton()
+    
+    if v == nil then
+        v = GetCheapestButton()
+    end
+
+    if v then
+        if v.BrickColor == BrickColor.new(0, 255, 0) then
+            Character.HumanoidRootPart.CFrame = CFrame.new(v.Position) * CFrame.new(0, 5, 0)
+            firetouchinterest(Character.HumanoidRootPart, v, 1)
+            task.wait()
+            firetouchinterest(Character.HumanoidRootPart, v, 0)
+        end
+    end
+end
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if Settings.CamFovToggled == true then
+    game.Workspace.Camera.FieldOfView = Settings.CamFov
+    end
+end)
+
+
+
+
+
+_G.AccentColors = {
+    Accent1 = Color3.fromRGB(24, 117, 255),
+    Accent2 = Color3.fromRGB(18, 92, 202)
+}
+
+local Framework = loadstring(game:HttpGet("https://pastebinp.com/raw/KP1dUHFg"))()
+local Watermark = Framework:CreateWatermark("DOX | {game} | {fps}")
+local WriteLine = Framework:CreateWindow("MILITARY TYCOON", Vector2.new(492, 588), Enum.KeyCode.RightControl)
+
+local ESPSettings = { PlayerESP = { Enabled = false, TracersOn = false, BoxesOn = false, NamesOn = false, DistanceOn = false, HealthOn = false, ToolOn = false, FaceCamOn = false, Distance = 2000 }, ScrapESP = { Enabled = false, Distance = 2000, LegendaryOnly = true, RareOnly = true, GoodOnly = true, BadOnly = true }, SafeESP = { Enabled = false, Distance = 2000, BigOnly = true, SmallOnly = true }, RegisterESP = { Enabled = false, Distance = 2000 }, ESPColor = Color3.fromRGB(255, 255, 255), ToolColor = Color3.fromRGB(255, 255, 255)};
+local ESPFramework = loadstring(game:HttpGet("https://raw.githubusercontent.com/DOXSASHW/ewewew/main/esp", true))()
+local Settings  = { GunMods = { NoRecoil = false, InstantEquip = false, Burst = false, Spread = false, AutoMode = false, SpreadAmount = 0 }, DownedChat = false, KillChat = false, DownedMSG = "IM A FEMALE", KillMSG = "", IsDead = false, AutoPickCash = false, AutoPickTools = false, AutoPickScrap = false, InfiniteStamina = false, NoJumpCooldown = false, SpaceJump = false, NoFailLockpick = false, ShowChatLogs = false, NoFlashbang  = false, NoSmoke = false, UnlockDoorsNearby = false, OpenDoorsNearby = false, NoClip = false, FullBright = false, CamFovToggled = false, CamFov = 70, Zoom = 10, InfinitePepperSpray = false, PepperSprayAura = false, WalkSpeed = {Enabled = false, Amount = 30}, JumpPower = {Enabled = false, Amount = 75}, NoBarbwire = false, NoFallDamage = false, NoRagdoll = false, WatermarkOn = false, ViewModel = { Enabled = false, Viewmodel = { Color = Color3.fromRGB(255, 255, 255), Material = Enum.Material.ForceField }, Melees = { Color = Color3.fromRGB(255, 255, 255), Material = Enum.Material.ForceField }, Guns = { Color = Color3.fromRGB(255, 255, 255), Material = Enum.Material.Plastic }, LeftArmOff = false }, CustomHitSound = 5043539486, VolumeHitsound = 1, WallBang = false, ElevatorTP = false, TowerTP = false, UIKey = Enum.KeyCode.LeftAlt};
+
+local General = WriteLine:CreateTab("Main")
+local Main = General:CreateSector("Player", "left")
+local Main2 = General:CreateSector("Misc", "right") 
+local Main4 = General:CreateSector("Visuals", "left") 
+
+Main:AddSlider("Tp Speed", 5, 5, 100, 1, function(v)
+    _G.TPSPEED = v
+end)
+
+Main:AddButton("Ctrl + Click to tp", function()
+    local speed = (_G.TPSPEED) -- set this lower to make it slower
+    local bodyvelocityenabled = true -- set this to false if you are getting kicked
+    
+    local Imput = game:GetService("UserInputService")
+    local Plr = game.Players.LocalPlayer
+    local Mouse = Plr:GetMouse()
+    
+    function To(position)
+    local Chr = Plr.Character
+    if Chr ~= nil then
+    local ts = game:GetService("TweenService")
+    local char = game.Players.LocalPlayer.Character
+    local hm = char.HumanoidRootPart
+    local dist = (hm.Position - Mouse.Hit.p).magnitude
+    local tweenspeed = dist/tonumber(speed)
+    local ti = TweenInfo.new(tonumber(tweenspeed), Enum.EasingStyle.Linear)
+    local tp = {CFrame = CFrame.new(position)}
+    ts:Create(hm, ti, tp):Play()
+    if bodyvelocityenabled == true then
+    local bv = Instance.new("BodyVelocity")
+    bv.Parent = hm
+    bv.MaxForce = Vector3.new(100000,100000,100000)
+    bv.Velocity = Vector3.new(0,0,0)
+    wait(tonumber(tweenspeed))
+    bv:Destroy()
+    end
+    end
+    end
+    
+    Imput.InputBegan:Connect(function(input)
+       if input.UserInputType == Enum.UserInputType.MouseButton1 and Imput:IsKeyDown(Enum.KeyCode.LeftControl) then
+           To(Mouse.Hit.p)
+       end
+    end)
+end)
+
+Main:AddButton("Float [Q & E]", function()
+    bruh = Instance.new('Part', game.Workspace)
+    bruh.Name = "bruh"
+    bruh.Size = Vector3.new(6,.1,6)
+    bruh.Color = Color3.fromRGB(100,166,200)
+    bruh.Anchored = true
+    bruh.Transparency = 1 --set to whatever lol
+    loop = false
+    a = game.Players.LocalPlayer:GetMouse()
+    a.KeyDown:Connect(function(black)
+    if black == "q" then
+       loop = true
+       while loop do
+           wait()
+    bruh.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0,-3.05,0)
+    end
+    elseif black == "e" and loop == true then
+    loop = false
+    end
+end)
+end)
+
+Main:AddButton("Fly", function()  
+    local Flying = true
+    local Flymode = "Camera"
+    local MaxSpeed = 10 -- speed 
+    local Down = {['w'] = false, ['a'] = false, ['s'] = false, ['d'] = false, ['q'] = false, ['e'] = false}
+    local KD = game.Players.LocalPlayer:GetMouse().KeyDown
+    local KU = game.Players.LocalPlayer:GetMouse().KeyUp
+    KD:Connect(function(K)
+        if K == "w" or K == "a" or K == "s" or K == "d" or K == "q" or K == "e" then 
+            Down[K] = true 
+            print(Down[K])
+        end
+    end)
+    
+    KU:Connect(function(K)
+        if K == "w" or K == "a" or K == "s" or K == "d" or K == "q" or K == "e" then 
+            Down[K] = false 
+        elseif K == "x" then 
+            Flying = not Flying 
+            EnableFly()
+        end
+    end)
+    
+    if workspace:FindFirstChild("CenterOfGravitationalForce") then 
+        Flying = false 
+        workspace:FindFirstChild("CenterOfGravitationalForce"):Destroy()
+    end
+    
+    local Flyanimation = Instance.new('Animation', game.Workspace)
+    Flyanimation.AnimationId = 'rbxassetid://3541044388'
+    local Idleanimation = Instance.new('Animation', game.Workspace)
+    Idleanimation.AnimationId = 'rbxassetid://3541114300'
+    local HeroIdle = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Idleanimation)
+    local HeroFly = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Flyanimation)
+    
+    local Inc = 0.1
+    
+    function EnableFly()
+        local Speed = 0.5
+        local Part = Instance.new("Part")
+        Part.Parent = workspace
+        Part.Size = Vector3.new(5,5,5)
+        Part.Transparency = 1
+        Part.CanCollide = false 
+        Part.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        Part.Anchored = true
+        Part.Name = "CenterOfGravitationalForce"
+        
+        local Att1 = Instance.new("Attachment")
+        Att1.Name = "Att1"
+        Att1.Visible = false 
+        Att1.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        
+        local Att2 = Instance.new("Attachment")
+        Att2.Name = "Att2"
+        Att2.Visible = false 
+        Att2.Parent = Part
+        
+        local AlignPos = Instance.new("AlignPosition")
+        local AlignGyro = Instance.new("AlignOrientation")
+        
+        AlignPos.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        AlignPos.Attachment0 = Att1
+        AlignPos.MaxForce = math.huge
+        AlignPos.MaxVelocity = math.huge
+        AlignPos.Mode = Enum.PositionAlignmentMode.TwoAttachment
+        AlignPos.Attachment1 = Att2
+        AlignPos.RigidityEnabled = false 
+        
+        AlignGyro.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+        AlignGyro.Mode = Enum.OrientationAlignmentMode.OneAttachment
+        AlignGyro.CFrame = workspace.CurrentCamera.CFrame
+        AlignGyro.MaxTorque = math.huge
+        AlignGyro.Attachment0 = Att1
+        AlignGyro.RigidityEnabled = false
+        
+        repeat wait() 
+            game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+            if Down["w"] then 
+                HeroFly:Play()
+                HeroIdle:Stop()
+                Part.CFrame = Part.CFrame + workspace.CurrentCamera.CFrame.lookVector * Speed
+                Speed = Speed + Inc
+            end
+            if Down["s"] then 
+                HeroFly:Play()
+                HeroIdle:Stop()
+                Part.CFrame = Part.CFrame - workspace.CurrentCamera.CFrame.lookVector * Speed
+                Speed = Speed + Inc
+            end
+            if Down["q"] then 
+                Part.CFrame = Part.CFrame * CFrame.new(0, Speed, 0)
+            end 
+            if Down["e"] then 
+                Part.CFrame = Part.CFrame * CFrame.new(0, -Speed, 0)
+            end
+            if Speed > MaxSpeed then 
+                Speed = MaxSpeed
+            end
+            if not Down["w"] and not Down["s"] then 
+                HeroFly:Stop()
+                HeroIdle:Play()
+            end
+            if Down["w"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad(Speed*4), 0 ,0)
+            elseif Down["s"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(math.rad(Speed*4), 0 ,0)
+            elseif Down["q"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(math.rad(Speed*7), 0 ,0)
+            elseif Down["e"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad(Speed*7), 0 ,0)
+            elseif Down["a"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(0, math.rad(Speed*50) ,0)
+            elseif Down["d"] then 
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame * CFrame.Angles(0, -math.rad(Speed*50) ,0)
+            else
+                AlignGyro.CFrame = workspace.CurrentCamera.CFrame
+            end
+        until Flying == false
+        game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+        AlignGyro:Destroy()
+        AlignPos:Destroy()
+        Part:Destroy()
+        HeroIdle:Stop()
+        HeroFly:Stop()
+    end
+    EnableFly()
+end)
+
+
+
+
+local WALKSPEED = Main:AddToggle("Enable Walkspeed", false, function(v)
+    if v == true then
+        getgenv().WalkSpeedValue = _G.WalkSpeed; 
+        local Player = game:service'Players'.LocalPlayer;
+        Player.Character.Humanoid:GetPropertyChangedSignal'WalkSpeed':Connect(function()
+        Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+        end)
+        Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+        end 
+        if v == false then
+        getgenv().WalkSpeedValue = 16; 
+        local Player = game:service'Players'.LocalPlayer;
+        Player.Character.Humanoid:GetPropertyChangedSignal'WalkSpeed':Connect(function()
+        Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+        end)
+        Player.Character.Humanoid.WalkSpeed = getgenv().WalkSpeedValue;
+    end
+end)
+WALKSPEED:AddKeybind("None", "UserIToggle")
+    
+Main:AddSlider("Walkspeed", 5, 5, 100, 1, function(v)
+    _G.WalkSpeed = v
+end)
+
+Main:AddToggle("Noclip", false, function(v)
+    _G.Noclip = v
+            
+    local function Noclip()
+    if game.Players.LocalPlayer.Character ~= nil and _G.Noclip == true then
+    for _, selfChar in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+        if selfChar:IsA("BasePart") and selfChar.CanCollide == true and selfChar.Name then
+                selfChar.CanCollide = false
+            end
+        end
+    end
+    end
+    
+    game:GetService('RunService').Stepped:Connect(Noclip)
+    end)
+    
+
+Main4:AddToggle("Enable ESP", ESPSettings.PlayerESP.Enabled, function(v)
+    ESPSettings.PlayerESP.Enabled = v
+
+    ESPFramework.Color = ESPSettings.ESPColor
+    ESPFramework.ToolColor = ESPSettings.ToolColor
+    ESPFramework.Tracers = ESPSettings.PlayerESP.TracersOn
+    ESPFramework.Names = ESPSettings.PlayerESP.NamesOn
+    ESPFramework.Health = ESPSettings.PlayerESP.HealthOn
+    ESPFramework.Distance = ESPSettings.PlayerESP.DistanceOn
+    ESPFramework.Tool = ESPSettings.PlayerESP.ToolOn
+    ESPFramework.Boxes = ESPSettings.PlayerESP.BoxesOn
+    ESPFramework.FaceCamera = ESPSettings.PlayerESP.FaceCamOn
+    ESPFramework:Toggle(ESPSettings.PlayerESP.Enabled)
+end, "PlayerESPsToggle")
+
+Main4:AddToggle("Face Camera", ESPSettings.PlayerESP.FaceCamOn, function(v)
+    ESPSettings.PlayerESP.FaceCamOn = v
+    ESPFramework.FaceCamera = ESPSettings.PlayerESP.FaceCamOn
+end)
+
+Main4:AddToggle("Box ESP", ESPSettings.PlayerESP.BoxesOn, function(v)
+    ESPSettings.PlayerESP.BoxesOn = v
+    ESPFramework.Boxes = ESPSettings.PlayerESP.BoxesOn
+end)
+
+Main4:AddToggle("Tracers ESP", ESPSettings.PlayerESP.TracersOn, function(v)
+    ESPSettings.PlayerESP.TracersOn = v
+    ESPFramework.Tracers = ESPSettings.PlayerESP.TracersOn
+end)
+
+Main4:AddToggle("Name ESP", ESPSettings.PlayerESP.NamesOn, function(v)
+    ESPSettings.PlayerESP.NamesOn = v
+    ESPFramework.Names = ESPSettings.PlayerESP.NamesOn
+end)
+
+Main4:AddToggle("Health ESP", ESPSettings.PlayerESP.HealthOn, function(v)
+    ESPSettings.PlayerESP.HealthOn = v
+    ESPFramework.Health = ESPSettings.PlayerESP.HealthOn
+end)
+
+Main4:AddToggle("Tool ESP", ESPSettings.PlayerESP.ToolOn, function(v)
+    ESPSettings.PlayerESP.ToolOn = v
+    ESPFramework.Tool = ESPSettings.PlayerESP.ToolOn
+end)
+
+Main4:AddToggle("Distance ESP", ESPSettings.PlayerESP.DistanceOn, function(v)
+    ESPSettings.PlayerESP.DistanceOn = v
+    ESPFramework.Distance = ESPSettings.PlayerESP.DistanceOn
+end)
+
+
+Main2:AddToggle("Auto Farm", false, function(State)
+    getgenv().AutoFarm = State
+end)
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if AutoFarm then
+        for i,v in pairs(Character:GetChildren()) do
+            if v.Name == "HumanoidRootPart" then
+                v.Anchored = true
+            end
+
+            if v:IsA("Part") then
+                v.CanCollide = false
+            end
+        end
+    else
+        for i,v in pairs(Character:GetChildren()) do
+            if v.Name == "HumanoidRootPart" then
+                v.Anchored = false
+            end
+
+            if v:IsA("Part") then
+                v.CanCollide = true
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if AutoFarm then
+            CollectMoney()
+            PressButton()
+        end
+    end
+end)
+
+
+    
+
+    
+Main2:AddSlider("Max Zoom", 5, 5, 1000, 1, function(v)
+    game.Players.LocalPlayer.CameraMaxZoomDistance = v
+end)
